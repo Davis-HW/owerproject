@@ -1,0 +1,73 @@
+﻿九、部署svn
+一、安装
+yum -y install mod_dav_svn
+
+二、配置(svn是工作目录，svnroot是版本仓库，svn下可以有多个版本仓库)
+创建工作目录
+mkdir -pv /svn/conf
+
+创建svn版本库
+svnadmin create /svn/svnroot
+
+删除默认配置文件
+rm -rf /svn/svnroot/conf/passwd
+rm -rf /svn/svnroot/conf/authz
+
+
+配置svn使用用户和权限
+vi /svn/conf/authz.conf
+#################################### 
+[groups]
+admin = xmcredit
+[/]
+@admin = rw
+[ximu:/svnroot]
+xmcredit = rw
+###################################
+
+vi /svn/conf/pwd.conf
+################################### 
+[users]
+xmcredit = xmcredit
+###################################
+
+添加配置文件引用认证文件
+vi /etc/svnserve.conf
+#################################################
+[general]
+anon-access = none
+auth-access = write
+password-db = /svn/conf/pwd.conf
+authz-db = /svn/conf/authz.conf
+realm = ximu
+#################################################
+
+
+给工作目录其他用户加读写权限
+chmod -R o+rw /home/svn
+
+
+三、启动(工作目录)
+svnserve -d -r /svn --config-file /etc/svnserve.conf [--listen-port 9998] 
+
+关闭
+killall svnserve
+
+svn checkout svn://127.0.0.1/svnroot/
+拉取到当前目录
+
+svn add file/directory
+svn commit -m [-F] ""
+提交
+
+svn delete file/directory
+svn commit -m [-F] ""
+删除
+
+*************************************************************************************************************
+*************************************************************************************************************
+1、安装svn图形化工具
+yum install rabbitvcs*
+2、重载nautilus
+nautilus -q
+3、创建文件夹，在文件夹中右击
